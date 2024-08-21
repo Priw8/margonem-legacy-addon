@@ -846,10 +846,15 @@ new(function(_itemTip, _newITem) {
                     sections[8] += _t('artisan_worthless') + '<br />';
                     break;
 
+                case 'legbon_test':
                 case 'legbon' : {
                     sections[5] += '<i class=legbon>';
                     var b = val.split(',');
-                    let num = b.length > 2 ? Number(b[2]) : null;
+                    let num = null;
+                    if (statName == "legbon_test") {
+                        num = b[1];
+                        sections[5] += "TEST: ";
+                    }
                     switch (b[0]) {
                         case 'verycrit' : if (num == null) num = 13;
                         case 'holytouch' : if (num == null) num = 7;
