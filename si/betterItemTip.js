@@ -583,7 +583,24 @@ new(function(_itemTip, _newITem) {
                     }) + '<br>';
                     break;
                 case 'enhancement_add_point':
-                    sections[3] += _t('bonus_enhancement_add_point') + "<br>";
+                    sections[3] += _t2('bonus_enhancement_add_point') + "<br>";
+                    break;
+                case 'add_enhancement_refund':
+                case 'reset_custom_teleport':
+                case 'add_tab_deposit':
+                    sections[4] += _t2('bonus_' +  statName) + '<br>';
+                    break;
+                case 'add_battleset': //Odblokowuje nowy zestaw do walki
+                    sections[4] += _t2(statName) + '<br>';
+                    break;
+                case 'enhancement_refund' :
+                    sections[4] += _t2('bonus_' +  statName) + '<br>';
+                    if (val > 1) sections[4] += _t2('bonus_' +  statName + '_amount', {'%val%': val}) + '<br>';
+                    break;
+                case 'manafatig':
+                case 'enfatig':
+                    const p = val.split(',');
+                    sections[3] += _t2('bonus_' +  statName, {'%val1%': mp(p[0]) + addUnit('%'), '%val2%': p[1]}) + '<br>';
                     break;
                 case 'quest_expbon':
                     sections[3] += _t2('bonus_quest_expbon %val%', {
@@ -597,9 +614,12 @@ new(function(_itemTip, _newITem) {
                         '%posfix%': posfix
                     }) + '<br>';
                     break; //'Mieści '+val+' przedmiot'+($.inArray(val%10,[2,3,4])<0||val>=6&&val<=19?'ów' : 'y')+'<br>'
-                case 'pkey':
-                    sections[3] += _t2('bonus_pkey') + '<br>';
-                    break; //'Klucz główny<br>'
+                // case 'pkey': // W kodzie NI wykomentowane, więc deprecated chyba
+                //     sections[3] += _t2('bonus_pkey') + '<br>';
+                //     break; //'Klucz główny<br>'
+                case 'rkeydesc' :
+					sections[3] += _t('bonus_rkeydesc', { '%val%': val }) + '<br>';
+					break; //'Otwiera: val'
                 case 'btype':
                     sections[4] += _t2('bonus_btype %val%', {
                         '%val%': val.split(",").map(cl => eq.classes[cl]?.toLowerCase()).join(", ")
@@ -1048,10 +1068,10 @@ new(function(_itemTip, _newITem) {
                     }
                     if (val.match(/quest/)) sections[2] += _t2('pet_logout_hide') + '<br />'; //'Chowaniec znika po wyjściu z gry
                     break;
-                case 'outexchange':
-                    sections[9] += _t2('outexchange') + '<br>';
-                    break; //'Możliwość wymiany stroju na nowy.
-                    break;
+                case 'outexchange': //'Możliwość wymiany stroju na nowy.
+                case 'personal': //Przedmiot spersonalizowany
+                        sections[8] += _t2(statName) + '<br>';
+                        break;                
                 case 'noauction':
                     var stop = false;
                     for (var k in st) {
