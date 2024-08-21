@@ -875,6 +875,7 @@ new(function(_itemTip, _newITem) {
                         case 'retaliation': if (num == null) num = 16;
                         case 'puncture': if (num == null) num = 12;
                         case 'frenzy': if (num == null) num = 2;
+                            if (b[0] == "frenzy" && statName == "legbon_test") num = num / 100; // Workaround dla wartości pokazywanej przez legbon_test 
                             sections[5] += _t('legbon_' + b[0], {'%val%': num});
                             break; //'Fizyczna osÅona: obraÅ¼enia fizyczne zmniejszone o 12%.'
                         default :
