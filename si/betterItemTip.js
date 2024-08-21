@@ -848,8 +848,12 @@ new(function(_itemTip, _newITem) {
 
                 case 'legbon_test':
                 case 'legbon' : {
-                    sections[5] += '<i class=legbon>';
                     var b = val.split(',');
+                    if (statName == "legbon" && typeof stat.legbon_test != "undefined") {
+                        sections[5] += `<i class="idesc">legbon_${b[0]} nadpisany przez legbon_test</i>`;
+                        break;
+                    }
+                    sections[5] += '<i class=legbon>';
                     let num = null;
                     if (statName == "legbon_test") {
                         num = b[1];
