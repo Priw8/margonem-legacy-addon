@@ -129,7 +129,8 @@ new(function(_itemTip, _newITem) {
                     // ogólnie to słyszałem, że wywalacie z SI wszelkie nowe funkcjonalności js czy coś takiego?
                     // współczuję
                     // mnie to średnio w moim dodatkach interesuje
-                    const [subStatName, subStatValue] = val.split(",");
+                    const [ subStatName, ...subStatValues ] = val.split(',');
+
                     let prefix = "+",
                         suffix = "",
                         unit = "",
@@ -138,15 +139,15 @@ new(function(_itemTip, _newITem) {
                     switch(subStatName) {
                         case 'critmval':
                             unit = '%';
-                            trans = _t2("bonus_of-".concat(subStatName, " %val%"), createTransVal(subStatValue, unit, prefix, suffix), 'newOrder');
+                            trans = _t2("bonus_of-".concat(subStatName, " %val%"), createTransVal(subStatValues[0], unit, prefix, suffix), 'newOrder');
                             break;
                 
                         case 'sa':
-                            trans = _t2('no_percent_bonus_sa %val%', createTransVal(subStatValue / 100, unit, prefix, suffix));
+                            trans = _t2('no_percent_bonus_sa %val%', createTransVal(subStatValues[0] / 100, unit, prefix, suffix));
                             break;
                 
                         case 'ac':
-                            trans = _t2("item_".concat(subStatName, " %val%"), createTransVal(subStatValue, unit, prefix, suffix));
+                            trans = _t2("item_".concat(subStatName, " %val%"), createTransVal(subStatValues[0], unit, prefix, suffix));
                             break;
                 
                         case 'act':
@@ -154,22 +155,28 @@ new(function(_itemTip, _newITem) {
                         case 'reslight':
                         case 'resfrost':
                             unit = '%';
-                            trans = _t2("item_".concat(subStatName, " %val%"), createTransVal(subStatValue, unit, prefix, suffix), 'newOrder');
+                            trans = _t2("item_".concat(subStatName, " %val%"), createTransVal(subStatValues[0], unit, prefix, suffix), 'newOrder');
                             break;
                 
                         case 'crit':
                         case 'critval':
                         case 'resdmg':
                             unit = '%';
-                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValue, unit, prefix, suffix), 'newOrder');
+                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValues[0], unit, prefix, suffix), 'newOrder');
                             break;
                 
                         case 'slow':
-                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValue / 100, unit, prefix, suffix));
+                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValues[0] / 100, unit, prefix, suffix));
                             break;
-                
+                        case 'enfatig':
+                        case 'manafatig':
+                            trans = _t2(`bonus_${subStatName}`, {
+                              ...createTransVal(subStatValues[0], '%', prefix, suffix, '%val1%'),
+                              ...createTransVal(subStatValues[1], unit, prefix, suffix, '%val2%')
+                            });
+                            break;
                         default:
-                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValue, unit, prefix, suffix));
+                            trans = _t2("bonus_".concat(subStatName, " %val%"), createTransVal(subStatValues[0], unit, prefix, suffix));
                     }
                     sections[4] += "<span class=\"tip-enh-bonus-stat\">".concat(_t('enh_bonus %val%', {
                         '%val%': trans
