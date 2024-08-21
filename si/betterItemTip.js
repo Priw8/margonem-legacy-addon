@@ -602,7 +602,7 @@ new(function(_itemTip, _newITem) {
                     break; //'Klucz główny<br>'
                 case 'btype':
                     sections[4] += _t2('bonus_btype %val%', {
-                        '%val%': eq.classes[val].toLowerCase()
+                        '%val%': val.split(",").map(cl => eq.classes[cl]?.toLowerCase()).join(", ")
                     }) + '<br>';
                     break; //'Tylko '+eq.classes[val].toLowerCase()+'<br>'
 
@@ -891,13 +891,13 @@ new(function(_itemTip, _newITem) {
                     break; //'Działa tylko w wybranych lokacjach<br>'
                 case 'teleport': {
                     const tpCoords = val.split(",").slice(1);
-                    sections[7] = '<i class=idesc>' + _t2('teleport') + ` (${tpCoords[0]},${tpCoords[1]})` + '</i>' + sections[7];
+                    sections[7] = '<i class=idesc>' + _t2('teleport') + `:<br>${tpCoords[2]} (${tpCoords[0]},${tpCoords[1]})` + '</i>' + sections[7];
                     break; //'Teleportuje gracza
                 }
                 case 'custom_teleport': {
                     const tpCoords = typeof val == "string" && val.split(",").slice(1);
                     if (val == true) sections[7] += '<i class=idesc>' +_t('dbl_click_to_set') +'</i>';
-                    else sections[7] =  '<i class=idesc>' +_t('teleport') + ` (${tpCoords[0]},${tpCoords[1]})` + '</i> '+ sections[7];
+                    else sections[7] =  '<i class=idesc>' +_t('teleport') + `:<br>${tpCoords[2]} (${tpCoords[0]},${tpCoords[1]})` + '</i> '+ sections[7];
                 break;
                 }
                 case 'furniture':
