@@ -846,48 +846,35 @@ new(function(_itemTip, _newITem) {
                     sections[8] += _t('artisan_worthless') + '<br />';
                     break;
 
-                case 'legbon':
+                case 'legbon' : {
                     sections[5] += '<i class=legbon>';
                     var b = val.split(',');
+                    let num = b.length > 2 ? Number(b[2]) : null;
                     switch (b[0]) {
-                        case 'verycrit':
-                            sections[5] += _t2('legbon_verycrit').replace("%val%", 13);
-                            break; //'Cios bardzo krytyczny: 10% szansy na podwojenie mocy ciosu krytycznego.'
-                        case 'holytouch':
-                            sections[5] += _t2('legbon_holytouch').replace("%val%", 7);
-                            break; //'Dotyk anioła: podczas udanego ataku 5% szansy na ogromne uleczenie ran, nie więcej niż stan początkowego życia.'
-                        case 'curse':
-                            sections[5] += _t2('legbon_curse').replace("%val%", 9);
-                            break; //'Klątwa: udany atak powoduje, iż przeciwnik otrzymuje 7% szans na chybienie przy jego następnym ataku.'
-                        case 'pushback':
-                            sections[5] += _t2('legbon_pushback');
-                            break; //'Odrzut: 8% szans na cofnięcie przeciwnika o krok do tyłu. Dotyczy wyłącznie profesji dystansowych.'
-                        case 'lastheal':
-                            sections[5] += _t2('legbon_lastheal').replace("%val%", 18);
-                            break; //'Ostatni ratunek: kiedy po otrzymanym ataku zostanie graczowi mniej niż 12% życia, zostaje jednorazowo uleczony do 30-50% swojego życia.'
-                        case 'critred':
-                            sections[5] += _t2('legbon_critred').replace("%val%", 20);
-                            break; //'Krytyczna osłona: przyjmowane ciosy krytyczne są o 15% słabsze.'
-                        case 'resgain':
-                            sections[5] += _t2('legbon_resgain').replace("%val%", 16);
-                            break; //'Ochrona żywiołów: 12% szans na podniesienie wszystkich odporności do maksimum (90%) przy przyjmowaniu ciosu magicznego.'
-                        case 'dmgred':
-                            sections[5] += _t2('legbon_dmgred').replace("%val%", 16);
-                            break; //'Fizyczna osłona: obrażenia fizyczne zmniejszone o 12%.'
-                        case "glare":
-                            sections[5] += _t2('legbon_glare').replace("%val%", 9);
-                            break;
-                        case "cleanse":
-                            sections[5] += _t2('legbon_cleanse').replace("%val%", 12);
-                            break;
-                        default:
-                            sections[5] += _t2('legbon_undefined %val%', {
-                                '%val%': b[0]
-                            });
+                        case 'verycrit' : if (num == null) num = 13;
+                        case 'holytouch' : if (num == null) num = 7;
+                        case 'curse' : if (num == null) num = 9;
+                        case 'pushback' : if (num == null) num = 8;
+                        case 'lastheal' : if (num == null) num = 18;
+                        case 'critred' : if (num == null) num = 20;
+                        case 'resgain' : if (num == null) num = 16;
+                        case 'dmgred' : if (num == null) num = 16;
+                        case 'cleanse' : if (num == null) num = 12;
+                        case 'glare' : if (num == null) num = 9;
+                        case 'facade': if (num == null) num = 15;
+                        case 'anguish': if (num == null) num = 8;
+                        case 'retaliation': if (num == null) num = 16;
+                        case 'puncture': if (num == null) num = 12;
+                        case 'frenzy': if (num == null) num = 2;
+                            sections[5] += _t('legbon_' + b[0], {'%val%': num});
+                            break; //'Fizyczna osÅona: obraÅ¼enia fizyczne zmniejszone o 12%.'
+                        default :
+                            sections[5] += _t('legbon_undefined %val%', {'%val%': b[0]});
                             break; //'Nieznany bonus: '+b[0]
                     }
                     sections[5] += '</i>';
                     break;
+                }
 
                 case 'lvlnext':
                     sections[10] += '<b class="lvl-next">' + _t2('match_bonus_' + statName + ' %val%', {
