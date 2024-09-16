@@ -7,6 +7,27 @@
     const isNewInterface = typeof Engine != "undefined" && typeof API != "undefined";
     const ipath = isNewInterface ? CFG.a_ipath : CFG.ipath;
 
+    // This fixes a really weird freeze that I'm getting on chromium.
+    // I don't know why it happens.
+    let nextAllowedImgTS = 0;
+    const imgLoadDelay = 20;
+    /**
+     * @param {HTMLImageElement} $img 
+     * @param {string} src 
+     */
+    function delayedLoadImg($img, src) {
+        const ts = new Date().getTime();
+        if (nextAllowedImgTS < ts) {
+            $img.src = src;
+            nextAllowedImgTS = ts + imgLoadDelay;
+        } else {
+            setTimeout(() => {
+                $img.src = src;
+            }, nextAllowedImgTS - ts);
+            nextAllowedImgTS += imgLoadDelay;
+        }
+    }
+
     /**
      * @param {HTMLElement} $el
      * @param {string} txt
@@ -112,6 +133,11 @@
         BLESSING: 25,
         ENHANCEMENT: 26,
         RECIPE: 27,
+        CURRENCY: 28,
+        QUIVER: 29,
+        OUTFIT: 30,
+        PET: 31,
+        TELEPORT: 32
     }
 
     /**
@@ -209,7 +235,8 @@
 
             const $item = document.createElement("div");
             const $img = new Image();
-            $img.src = `${ipath}${this.d.icon}`;
+            // $img.src = `${ipath}${this.d.icon}`;
+            delayedLoadImg($img, `${ipath}${this.d.icon}`);
             $item.appendChild($img);
             $item.classList.add("item");
             
@@ -296,6 +323,27 @@
         isPoisonItem() {
             const st = this.getStat();
             return (st.leczy && st.leczy < 0) || (st.perheal && st.perheal < 0);
+        }
+        isCustomTeleport() {
+            return typeof this.getStat().custom_teleport != "undefined";
+        }
+        isSetCustomTeleport() {
+            return this.isCustomTeleport() && this.getStat().custom_teleport !== true;
+        }
+        isUnsetCustomTeleport() {
+            return this.isCustomTeleport() && this.getStat().custom_teleport === true;
+        }
+        /** @returns {string} */
+        getTeleportDestination() {
+            if (this.d.cl == MargoItemClass.TELEPORT) {
+                const st = this.getStat();
+                if (typeof st.teleport == "string") {
+                    return st.teleport.split(",")[3];
+                } else if (this.isSetCustomTeleport()) {
+                    return st.custom_teleport.split(",")[3];
+                }
+            }
+            return "";
         }
         /** @param {MargoItem} margoItem */
         update(margoItem) {
@@ -416,11 +464,17 @@
 
     const essenceNames = ["Okruchy przeciętności", "Ekstrakt unikalności", "Pryzmat heroicznej magii", "Płomień lepszej mocy", "Esencja sakryfikacji"];
     const eqClasses = [
-        MargoItemClass.BOOTS, MargoItemClass.ARMOR, MargoItemClass.GLOVES, MargoItemClass.NECKLACE, MargoItemClass.RING, MargoItemClass.HELMET,
-        MargoItemClass.ONEHANDED, MargoItemClass.TWOHANDED, MargoItemClass.ONEANDAHALFHANDED, MargoItemClass.RANGED, MargoItemClass.WAND, MargoItemClass.STAFF,
-        MargoItemClass.SHIELD, MargoItemClass.SECONDARY, MargoItemClass.ARROW
+        MargoItemClass.BOOTS, MargoItemClass.ARMOR, MargoItemClass.GLOVES, MargoItemClass.NECKLACE,
+        MargoItemClass.RING, MargoItemClass.HELMET, MargoItemClass.ONEHANDED, 
+        MargoItemClass.TWOHANDED, MargoItemClass.ONEANDAHALFHANDED, MargoItemClass.RANGED, 
+        MargoItemClass.WAND, MargoItemClass.STAFF, MargoItemClass.SHIELD, MargoItemClass.SECONDARY, 
+        /*MargoItemClass.ARROW*/ MargoItemClass.QUIVER
     ]
-    const mainWeaponClasses = [MargoItemClass.ONEHANDED, MargoItemClass.TWOHANDED, MargoItemClass.ONEANDAHALFHANDED, MargoItemClass.RANGED, MargoItemClass.WAND, MargoItemClass.STAFF];
+    const mainWeaponClasses = [
+        MargoItemClass.ONEHANDED, MargoItemClass.TWOHANDED, MargoItemClass.ONEANDAHALFHANDED, 
+        MargoItemClass.RANGED, MargoItemClass.WAND, MargoItemClass.STAFF,
+        MargoItemClass.QUIVER
+    ];
 
     // nice type bro
     /** @type {{[name: string]: {mainFilter: DepoItemPredicate, subFilters: {[name: string]: DepoItemPredicate}}}}} */
@@ -440,7 +494,7 @@
                 "Bronie": item => mainWeaponClasses.includes(item.d.cl),
                 "Pomocnicze": item => item.d.cl == MargoItemClass.SECONDARY,
                 "Tarcze": item => item.d.cl == MargoItemClass.SHIELD,
-                "Strzały": item => item.d.cl == MargoItemClass.ARROW,
+                "Strzały": item => item.d.cl == MargoItemClass.QUIVER,
                 "Zbroje": item => item.d.cl == MargoItemClass.ARMOR,
                 "Hełmy": item => item.d.cl == MargoItemClass.HELMET,
                 "Rękawice": item => item.d.cl == MargoItemClass.GLOVES,
@@ -452,10 +506,10 @@
         "Konsumpcyjne": {
             "mainFilter": item => item.d.cl == MargoItemClass.CONSUMABLE,
             "subFilters": {
-                "Teleporty": item => {
-                    const stat = item.getStat();
-                    return stat.teleport || stat.custom_teleport;
-                },
+                // "Teleporty": item => {
+                //     const stat = item.getStat();
+                //     return stat.teleport || stat.custom_teleport;
+                // },
                 "Potki": item => item.isHealingItem(),
                 "Trucizny": item => item.isPoisonItem(),
                 "Przywołania": item => item.getStat().summonparty,
@@ -466,9 +520,25 @@
                 "Sklep": item => item.getStat()._shop,
                 "Leczenie w walce": item => item.getStat()._fightperheal,
                 "Zaśpiewy": item => item.getStat().battlestats,
-                "Outfity": item => item.getStat().outfit || item.getStat().outfit_selector,
-                "Maskotki": item => item.getStat().pet,
+                // "Outfity": item => item.getStat().outfit || item.getStat().outfit_selector,
+                // "Maskotki": item => item.getStat().pet,
             }
+        },
+        "Teleporty": {
+            "mainFilter": item => item.d.cl == MargoItemClass.TELEPORT,
+            "subFilters": {
+                "Zwykłe": item => !item.isCustomTeleport(),
+                "KCS/ZCS (ustawione)": item => item.isSetCustomTeleport(),
+                "KCS/ZCS (nieustawione)": item => item.isUnsetCustomTeleport()
+            }
+        },
+        "Outfity": {
+            "mainFilter": item => item.d.cl == MargoItemClass.OUTFIT,
+            "subFilters": {}
+        },
+        "Maskotki": {
+            "mainFilter": item => item.d.cl == MargoItemClass.PET,
+            "subFilters": {}
         },
         "Błogosławieństwa": {
             "mainFilter": item => item.d.cl == MargoItemClass.BLESSING,
@@ -509,6 +579,10 @@
         },
         "Książki": {
             "mainFilter": item => item.d.cl == MargoItemClass.BOOK,
+            "subFilters": {}
+        },
+        "Waluta": {
+            "mainFilter": item => item.d.cl == MargoItemClass.CURRENCY,
             "subFilters": {}
         },
         "Questowe": {
@@ -734,6 +808,11 @@
                     const desc = item.getStat().opis;
                     if (desc && desc.toLowerCase().indexOf(this.currentSearch) > -1)
                         return true; 
+
+                    const destination = item.getTeleportDestination();
+                    if (destination && destination.toLowerCase().includes(this.currentSearch)) {
+                        return true;
+                    }
                 }
 
                 return item.d.name.toLowerCase().indexOf(this.currentSearch) != -1;
