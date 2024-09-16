@@ -860,11 +860,16 @@ new(function(_itemTip, _newITem) {
                         sections[5] += "TEST: ";
                     }
                     switch (b[0]) {
+                        case 'lastheal': 
+                            sections[5] += _t('legbon_' + b[0], {'%val%': 18});
+                            if (statName == "legbon_test") {
+                                sections[5] += ` // do około ${num}%`
+                            }
+                            break;
                         case 'verycrit' : if (num == null) num = 13;
                         case 'holytouch' : if (num == null) num = 7;
                         case 'curse' : if (num == null) num = 9;
                         case 'pushback' : if (num == null) num = 8;
-                        case 'lastheal' : if (num == null) num = 18;
                         case 'critred' : if (num == null) num = 20;
                         case 'resgain' : if (num == null) num = 16;
                         case 'dmgred' : if (num == null) num = 16;
